@@ -1,0 +1,173 @@
+/* purelane-base.css
+   Loaded once (theme.liquid) — variables, resets, and primitives shared by
+   every Purelane section: .glass, .btn, .rv (scroll reveal), .rule, .kicker.
+   Section-specific layout lives in each section's own asset file so unused
+   sections don't ship dead CSS. */
+
+:root{
+  --ink:#17102b;
+  --deep:#241a3d;
+  --brand:#4b3a8f;
+  --brand-lt:#6b55b8;
+  --paper:#ece6f7;
+  --paper-2:rgba(236,230,247,.74);
+  --paper-3:rgba(236,230,247,.52);
+  --accent:#f0a03c;
+  --accent-2:#c9761d;
+  --surface:#faf7fd;
+  --g-bg:linear-gradient(158deg,rgba(236,230,247,.15),rgba(75,58,143,.20) 58%,rgba(23,16,43,.28));
+  --g-line:rgba(236,230,247,.22);
+  --g-shadow:0 26px 74px rgba(18,12,34,.44);
+  --g-inset:inset 0 1px 0 rgba(255,255,255,.24);
+  --r:26px;
+  --r-sm:16px;
+  --maxw:1180px;
+  --sec-y:34px;
+  --ease:cubic-bezier(.2,.7,.2,1);
+}
+
+.d1,.d2,.d3,.d4{font-family:'Outfit',system-ui,sans-serif;text-transform:uppercase;letter-spacing:-.018em;font-weight:800;line-height:.87;color:var(--surface)}
+.d1{font-size:clamp(48px,8.6vw,112px)}
+.d2{font-size:clamp(30px,4.6vw,54px);line-height:.94}
+.d3{font-size:clamp(21px,2.5vw,30px);line-height:1.04;font-weight:700;letter-spacing:-.01em}
+.d4{font-size:clamp(16px,1.6vw,19px);line-height:1.14;font-weight:700;letter-spacing:.005em}
+.lime{color:var(--accent)}
+.lede{font-size:clamp(15px,1.35vw,17.5px);color:var(--paper-2);max-width:44ch}
+.body-s{font-size:14.5px;color:var(--paper-2);line-height:1.66}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--paper-3)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 18px}
+
+body{background:var(--ink) !important;color:var(--paper)}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+
+/* ---------- GLASS (shared card surface) ---------- */
+.glass{
+  background:var(--g-bg);
+  backdrop-filter:blur(24px) saturate(150%);
+  -webkit-backdrop-filter:blur(24px) saturate(150%);
+  border:1px solid var(--g-line);
+  border-radius:var(--r);
+  box-shadow:var(--g-shadow),var(--g-inset);
+  position:relative;
+  overflow:hidden;
+}
+.glass::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,rgba(255,255,255,.16),transparent 30%,transparent 72%,rgba(240,160,60,.07))}
+.glass-2{
+  background:linear-gradient(158deg,rgba(236,230,247,.10),rgba(0,48,46,.22));
+  backdrop-filter:blur(18px) saturate(135%);
+  -webkit-backdrop-filter:blur(18px) saturate(135%);
+  border:1px solid rgba(236,230,247,.16);
+  border-radius:var(--r);
+  box-shadow:0 18px 48px rgba(18,12,34,.36),inset 0 1px 0 rgba(255,255,255,.16);
+  position:relative;overflow:hidden;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;gap:10px;height:46px;padding:0 22px;border-radius:999px;
+  font-size:12.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;transition:.35s var(--ease);white-space:nowrap}
+.btn svg{width:15px;height:15px;flex:0 0 auto}
+.btn-primary{background:linear-gradient(135deg,var(--accent-2),#5d8d1c);color:#08211a;box-shadow:0 12px 30px rgba(201,118,29,.34),inset 0 1px 0 rgba(255,255,255,.34)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 40px rgba(201,118,29,.44),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-ghost{background:rgba(236,230,247,.10);border:1px solid rgba(236,230,247,.30);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--surface)}
+.btn-ghost:hover{background:rgba(236,230,247,.18);transform:translateY(-2px)}
+.btn-sm{height:38px;padding:0 18px;font-size:11px;letter-spacing:.14em}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.5;pointer-events:none}
+
+/* ---------- SCROLL REVEAL ----------
+   Progressive enhancement only: base state is fully visible. JS adds
+   [data-rv-ready] to <html> once it confirms IntersectionObserver support
+   and no prefers-reduced-motion, THEN applies the hidden starting state.
+   This means reduced-motion users and no-JS users never see hidden content,
+   and the theme editor (which reruns section JS on every edit) can't get
+   sections stuck at opacity:0. */
+html[data-rv-ready] .rv{opacity:0;transform:translateY(30px);filter:blur(7px);transition:opacity .95s var(--ease),transform .95s var(--ease),filter .95s var(--ease)}
+html[data-rv-ready] .rv.in{opacity:1;transform:none;filter:none}
+.rv-d1{transition-delay:.09s}.rv-d2{transition-delay:.18s}.rv-d3{transition-delay:.27s}.rv-d4{transition-delay:.36s}.rv-d5{transition-delay:.45s}
+
+.rule{display:flex;align-items:center;gap:13px;margin:0 0 20px;max-width:270px}
+.rule i{height:1px;flex:1;background:linear-gradient(90deg,rgba(236,230,247,.44),transparent)}
+.rule svg{width:16px;height:16px;color:var(--accent);flex:0 0 auto}
+.panel-head{text-align:center;max-width:640px;margin:0 auto 30px}
+.panel-head .rule{margin:16px auto 0;justify-content:center;max-width:240px}
+.panel-head .rule i:first-child{background:linear-gradient(90deg,transparent,rgba(236,230,247,.44))}
+
+.sec{position:relative;z-index:2;padding:var(--sec-y) 0}
+
+.visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;z-index:2;min-height:100svh;display:flex;align-items:flex-end;padding:150px 0 var(--sec-y);
+  background:linear-gradient(178deg,#1ea38d 0%,#0b8578 22%,#017069 48%,#4b3a8f 74%,#01524e 100%)}
+.hero-grid{max-width:var(--maxw);margin:0 auto;padding:0 18px;width:100%;position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;align-items:flex-end;gap:24px}
+.hero-copy{max-width:600px;position:relative;z-index:3}
+.hero h1{margin-bottom:20px;text-shadow:0 6px 40px rgba(2,20,19,.55)}
+.hero-cta{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px}
+
+.hero-prod{position:relative;width:100%;max-width:560px;justify-self:end}
+.hstage{position:relative;width:100%;height:clamp(380px,74svh,680px)}
+.hslide{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;
+  padding-right:2%;opacity:0;pointer-events:none;transition:opacity .85s var(--ease)}
+.hslide.on{opacity:1;pointer-events:auto}
+.hp{position:relative;flex:0 0 auto;display:flex;align-items:flex-end;
+  filter:drop-shadow(0 26px 40px rgba(1,22,20,.66))}
+.hp img{height:100%;width:auto;max-height:none;display:block}
+.hp-fallback{display:flex;align-items:center;justify-content:center;width:160px;height:100%;
+  border-radius:var(--r-sm);background:rgba(236,230,247,.08);border:1px dashed rgba(236,230,247,.3)}
+.hp-fallback-icon{width:48px;height:48px;color:var(--paper-3)}
+
+/* Height-driven overlap, matching the prototype exactly:
+   one product = fills the stage; two = back bottle pulled in behind the front
+   one; three = tight cluster with the tallest bottle centred in front. */
+.hs1 .hp:nth-child(1){height:100%;z-index:3}
+.hs2 .hp:nth-child(1){height:80%;margin-right:-8%;z-index:1}
+.hs2 .hp:nth-child(2){height:97%;z-index:3}
+.hs3 .hp:nth-child(1){height:75%;margin-right:-8%;z-index:1;order:1}
+.hs3 .hp:nth-child(3){height:97%;z-index:3;order:2}
+.hs3 .hp:nth-child(2){height:79%;margin-left:-8%;z-index:2;order:3}
+
+.ptag{position:absolute;left:0;bottom:2%;z-index:6;padding:11px 14px 12px;border-radius:16px;max-width:52%}
+.ptag .lbl{display:block;font-size:9px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:var(--accent)}
+.ptag .val{display:flex;align-items:baseline;gap:7px;margin-top:5px}
+.ptag .val strong{font-family:'Outfit',sans-serif;font-size:23px;font-weight:800;letter-spacing:-.02em;color:var(--surface);line-height:1}
+.ptag .val s{font-size:12px;color:var(--paper-3)}
+.ptag .cut{display:inline-block;margin-top:7px;font-size:8.4px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  background:rgba(240,160,60,.16);border:1px solid rgba(240,160,60,.36);color:var(--accent);padding:3px 8px;border-radius:999px}
+
+.hdots{display:flex;gap:7px;justify-content:center;align-items:center;margin-top:8px}
+.hdots button{width:6px;height:6px;padding:0;border-radius:50%;background:rgba(236,230,247,.28);transition:.4s var(--ease)}
+.hdots button.on{background:var(--accent);width:20px;border-radius:999px}
+.hdots button:hover{background:rgba(236,230,247,.5)}
+
+/* Promise badges: desktop side rail */
+.badges{position:absolute;right:18px;top:50%;transform:translateY(-50%);width:96px;z-index:4}
+.badge{text-align:center;padding:11px 4px}
+.badge+.badge{border-top:1px solid rgba(236,230,247,.14)}
+.badge .bi{width:38px;height:38px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(236,230,247,.10);color:var(--accent)}
+.badge .bi-svg{width:19px;height:19px}
+.badge span{display:block;font-size:8.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;color:var(--paper-2);line-height:1.34}
+@media(max-width:900px){.badges{display:none}}
+
+/* Promise badges: mobile strip (shown instead of the rail) */
+.badgestrip{display:none;gap:8px;margin-top:24px}
+.badgestrip div{flex:1;text-align:center;padding:11px 6px;border-radius:14px;font-size:8.5px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--paper-2);line-height:1.3}
+.badgestrip svg{width:18px;height:18px;margin:0 auto 6px;color:var(--accent)}
+@media(max-width:900px){.badgestrip{display:flex}}
+
+@media(max-width:900px){
+  .hero-grid{grid-template-columns:1fr;align-items:center}
+  .hero{align-items:flex-end;padding:118px 0 var(--sec-y)}
+  .hero-copy{max-width:none}
+  .hero-prod{max-width:none;justify-self:center;width:min(88vw,420px);margin:20px auto 0}
+  .hstage{height:clamp(300px,44svh,430px)}
+  .ptag{padding:9px 12px 10px;border-radius:14px;max-width:58%}
+  .ptag .val strong{font-size:20px}
+  .badgestrip div{font-size:8px;padding:9px 4px}
+  .badgestrip svg{width:16px;height:16px}
+}

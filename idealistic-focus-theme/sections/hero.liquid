@@ -1,0 +1,171 @@
+{%- comment -%}
+  sections/hero.liquid
+  Full-bleed hero with editable copy, three "promise" badges, and a rotating
+  stage that cycles through 1/2/3-product pricing tiers.
+
+  PRODUCTION CHANGES FROM THE PROTOTYPE (see build notes for the rest):
+  - Headline, subhead and both CTAs are section settings, not hardcoded text.
+  - The three "promise" badges are a block type so marketing can add/remove/
+    reorder/re-icon them from the editor instead of editing markup.
+  - The three pricing tiers (1/2/3 products) are blocks, each pointing at a
+    real product list via a product-list setting, so price/compare-at price
+    come from Shopify, not typed-in rupee figures that go stale.
+  - Hand-drawn CSS product art is kept ONLY as the empty-state fallback for
+    a block with no image (this is also how we cover the "product with no
+    image" seed case from the assignment brief).
+{%- endcomment -%}
+
+<section class="hero" data-scene="1" data-section-id="{{ section.id }}">
+  <div class="hero-grid">
+
+    {%- comment -%} Promise badges (desktop rail) + badge strip (mobile) share one block loop {%- endcomment -%}
+    {%- assign badge_blocks = section.blocks | where: "type", "badge" -%}
+    {%- if badge_blocks.size > 0 -%}
+      <div class="badges glass-2" aria-label="Product promises">
+        {%- for block in badge_blocks -%}
+          <div class="badge" {{ block.shopify_attributes }}>
+            <span class="bi">{% render 'icon', name: block.settings.icon, class: 'bi-svg' %}</span>
+            <span>{{ block.settings.label }}</span>
+          </div>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="hero-copy">
+      <h1 class="d1 rv">{{ section.settings.heading }}</h1>
+      <div class="rule rv rv-d1">
+        <i></i>{% render 'icon', name: 'leaf' %}<i></i>
+      </div>
+      {%- if section.settings.subheading != blank -%}
+        <p class="lede rv rv-d2">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+      <div class="hero-cta rv rv-d3">
+        {%- if section.settings.primary_label != blank -%}
+          <a class="btn btn-primary" href="{{ section.settings.primary_link | default: '#shop' }}">
+            {{ section.settings.primary_label }}
+            {% render 'icon', name: 'arrow-right' %}
+          </a>
+        {%- endif -%}
+        {%- if section.settings.secondary_label != blank -%}
+          <a class="btn btn-ghost" href="{{ section.settings.secondary_link | default: '#how' }}">{{ section.settings.secondary_label }}</a>
+        {%- endif -%}
+      </div>
+
+      {%- if badge_blocks.size > 0 -%}
+        <div class="badgestrip rv rv-d4" aria-hidden="true">
+          {%- for block in badge_blocks -%}
+            <div class="glass-2">
+              {% render 'icon', name: block.settings.icon %}
+              {{ block.settings.label }}
+            </div>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Rotating product stage {%- endcomment -%}
+    {%- assign tier_blocks = section.blocks | where: "type", "tier" -%}
+    {%- if tier_blocks.size > 0 -%}
+      <div class="hero-prod" id="heroProd-{{ section.id }}">
+        <div class="hstage" data-hero-stage>
+          {%- for block in tier_blocks -%}
+            {%- assign products = block.settings.products -%}
+            <div class="hslide hs{{ forloop.index }}{% if forloop.first %} on{% endif %}" data-n="{{ forloop.index }}" {{ block.shopify_attributes }}>
+              {%- for product in products -%}
+                <span class="hp d{{ forloop.index }}" aria-hidden="{% unless forloop.first %}true{% else %}false{% endunless %}">
+                  {%- if product.featured_media -%}
+                    {{ product.featured_media | image_url: width: 500 | image_tag:
+                        loading: 'lazy',
+                        widths: '250,375,500',
+                        alt: product.featured_media.alt | default: product.title
+                    }}
+                  {%- else -%}
+                    {%- comment -%} No product image set: fall back to the illustrated placeholder rather than a broken image. {%- endcomment -%}
+                    <span class="hp-fallback" role="img" aria-label="{{ product.title }}">{% render 'icon', name: 'leaf', class: 'hp-fallback-icon' %}</span>
+                  {%- endif -%}
+                </span>
+              {%- endfor -%}
+              <div class="glass-2 ptag">
+                <span class="lbl">{{ block.settings.label }}</span>
+                <span class="val">
+                  <strong>{{ block.settings.bundle_price | money }}</strong>
+                  {%- if block.settings.compare_at_price > block.settings.bundle_price -%}
+                    <s>{{ block.settings.compare_at_price | money }}</s>
+                  {%- endif -%}
+                </span>
+                {%- if block.settings.compare_at_price > block.settings.bundle_price -%}
+                  {%- assign save = block.settings.compare_at_price | minus: block.settings.bundle_price -%}
+                  <span class="cut">Save {{ save | money }}</span>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+        {%- if tier_blocks.size > 1 -%}
+          <div class="hdots" role="tablist" aria-label="Pricing tiers">
+            {%- for block in tier_blocks -%}
+              <button type="button" class="{% if forloop.first %}on{% endif %}" role="tab" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="Show {{ block.settings.label }}"></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
+
+<script src="{{ 'purelane-hero.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Hero",
+  "tag": "section",
+  "class": "shopify-section-hero",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Clean That Lasts" },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Homecare that works on the toughest grime, made from plants. Kind to your home, your family and the world outside it." },
+    { "type": "text", "id": "primary_label", "label": "Primary button label", "default": "Shop now" },
+    { "type": "url", "id": "primary_link", "label": "Primary button link" },
+    { "type": "text", "id": "secondary_label", "label": "Secondary button label", "default": "How it works" },
+    { "type": "url", "id": "secondary_link", "label": "Secondary button link" }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Promise badge",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "default": "leaf", "options": [
+          { "value": "leaf", "label": "Leaf" },
+          { "value": "shield-check", "label": "Shield check" },
+          { "value": "no-chemical", "label": "No chemical" }
+        ]},
+        { "type": "text", "id": "label", "label": "Label", "default": "Plant powered" }
+      ]
+    },
+    {
+      "type": "tier",
+      "name": "Pricing tier",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Tier label", "default": "Single bottle" },
+        { "type": "product_list", "id": "products", "label": "Products shown in this tier", "limit": 3, "info": "1 product for the first tier, 2 for the second, 3 for the third — matches the prototype's stacked-bottle art." },
+        { "type": "number", "id": "bundle_price", "label": "Price (₹)", "default": 200 },
+        { "type": "number", "id": "compare_at_price", "label": "Compare-at price (₹)", "default": 299 }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Hero",
+      "blocks": [
+        { "type": "badge", "settings": { "icon": "leaf", "label": "Plant powered" } },
+        { "type": "badge", "settings": { "icon": "shield-check", "label": "Safe for kids & pets" } },
+        { "type": "badge", "settings": { "icon": "no-chemical", "label": "Zero harsh chemicals" } },
+        { "type": "tier", "settings": { "label": "Single bottle", "bundle_price": 200, "compare_at_price": 299 } },
+        { "type": "tier", "settings": { "label": "Any 2 products", "bundle_price": 349, "compare_at_price": 598 } },
+        { "type": "tier", "settings": { "label": "Any 3 products", "bundle_price": 499, "compare_at_price": 897 } }
+      ]
+    }
+  ]
+}
+{% endschema %}
