@@ -1,0 +1,72 @@
+{%- comment -%}
+  snippets/product-card.liquid
+  One card = one product. Used by sections/shop-grid.liquid and, later,
+  sections/combos.liquid — built as a shared snippet from the start since
+  the assignment brief explicitly calls out "several sections render similar
+  cards; build accordingly."
+
+  Accepts:
+    product        - required, a Shopify product object
+    badge_label    - optional, text for the corner pill ("Best seller", "New", etc.)
+    reveal_class    - optional, e.g. "rv rv-d2" for staggered scroll-reveal
+  Handles the three required edge cases from the brief:
+    - sold out product  -> button becomes disabled "Sold out"
+    - no product image  -> falls back to the leaf placeholder icon, no broken img
+    - very long title    -> h4 clamps to 2 lines with ellipsis rather than
+                            pushing the card's height and breaking grid alignment
+{%- endcomment -%}
+
+{%- liquid
+  assign card_reveal = reveal_class | default: 'rv'
+  assign rating = product.metafields.reviews.rating.value
+  assign rating_count = product.metafields.reviews.rating_count.value | default: product.metafields.reviews.count.value
+-%}
+<article class="glass card {{ card_reveal }}">
+  <a class="shot" href="{{ product.url | default: '#' }}" aria-label="{{ product.title }}">
+    {%- if badge_label != blank -%}
+      <span class="pill">{{ badge_label }}</span>
+    {%- endif -%}
+    {%- if product.featured_media -%}
+      {{ product.featured_media | image_url: width: 400 | image_tag:
+          loading: 'lazy',
+          widths: '200,300,400',
+          sizes: '(min-width: 860px) 25vw, 50vw',
+          alt: product.featured_media.alt | default: product.title,
+          class: 'pimg'
+      }}
+    {%- else -%}
+      <span class="pimg pimg-fallback" role="img" aria-label="{{ product.title }}">
+        {% render 'icon', name: 'leaf' %}
+      </span>
+    {%- endif -%}
+  </a>
+  <h4>
+    <a href="{{ product.url | default: '#' }}">{{ product.title }}</a>
+  </h4>
+  {%- if rating != blank -%}
+    <div class="rate">
+      <b>★ {{ rating }}</b>
+      {%- if rating_count != blank -%} · {{ rating_count }} reviews{%- endif -%}
+    </div>
+  {%- endif -%}
+  <div class="pr">
+    {%- if product.price_varies -%}
+      <strong>{{ product.price_min | money }}+</strong>
+    {%- else -%}
+      <strong>{{ product.price | money }}</strong>
+    {%- endif -%}
+    {%- if product.compare_at_price > product.price -%}
+      <s>{{ product.compare_at_price | money }}</s>
+      {%- assign pct_off = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price -%}
+      <em>{{ pct_off | round }}% off</em>
+    {%- endif -%}
+  </div>
+  {%- if product.available -%}
+    {%- form 'product', product -%}
+      <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+      <button type="submit" class="btn btn-ghost btn-sm" name="add">Add to cart</button>
+    {%- endform -%}
+  {%- else -%}
+    <button type="button" class="btn btn-ghost btn-sm" disabled aria-disabled="true">Sold out</button>
+  {%- endif -%}
+</article>

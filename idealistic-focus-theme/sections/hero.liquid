@@ -88,13 +88,13 @@
               <div class="glass-2 ptag">
                 <span class="lbl">{{ block.settings.label }}</span>
                 <span class="val">
-                  <strong>{{ block.settings.bundle_price | money }}</strong>
+                  <strong>{{ block.settings.bundle_price | times: 100 | money }}</strong>
                   {%- if block.settings.compare_at_price > block.settings.bundle_price -%}
-                    <s>{{ block.settings.compare_at_price | money }}</s>
+                    <s>{{ block.settings.compare_at_price | times: 100 | money }}</s>
                   {%- endif -%}
                 </span>
                 {%- if block.settings.compare_at_price > block.settings.bundle_price -%}
-                  {%- assign save = block.settings.compare_at_price | minus: block.settings.bundle_price -%}
+                  {%- assign save = block.settings.compare_at_price | minus: block.settings.bundle_price | times: 100 -%}
                   <span class="cut">Save {{ save | money }}</span>
                 {%- endif -%}
               </div>

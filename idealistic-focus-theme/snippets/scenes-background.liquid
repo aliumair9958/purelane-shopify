@@ -1,0 +1,20 @@
+{%- comment -%}
+  snippets/scenes-background.liquid
+  Include ONCE, right after <body> opens in theme.liquid.
+
+  This is the shared background every section sits on top of — without it,
+  sections look visually disconnected (flat body color vs. Hero's own
+  gradient), which is exactly the inconsistency this fixes. A small JS
+  scroll-listener (purelane-scenes.js) watches for elements with
+  [data-scene="1"|"2"|"3"|"4"] and fades the matching gradient in/out as
+  the visitor scrolls past them — same technique as the prototype's scene
+  system, reproduced without the canvas/water shimmer layer (documented as
+  a deliberate simplification — that layer is decorative, not structural,
+  and out of scope for the 5 required sections).
+{%- endcomment -%}
+<div class="scenes" aria-hidden="true">
+  <div class="scene s1 on" data-scene-layer="1"></div>
+  <div class="scene s2" data-scene-layer="2"></div>
+  <div class="scene s3" data-scene-layer="3"></div>
+  <div class="scene s4" data-scene-layer="4"></div>
+</div>

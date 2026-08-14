@@ -1,0 +1,100 @@
+{%- comment -%}
+  sections/reviews.liquid
+  #reviews — auto-scrolling review marquee.
+
+  DATA MODEL: a review here is authored marketing content (star count, quote,
+  customer name, product tag) — not necessarily backed by a review app.
+  Modeled as a `customer_review` metaobject with fields:
+    rating          (number, 1-5)
+    title           (single line text)
+    body            (multi-line text)
+    author_name     (single line text)
+    product_ref     (product reference, optional — powers the "· Tap cleaner" tag)
+  This lets a merchant add/edit/retire reviews from Content > Metaobjects
+  without touching code, same pattern as Combos.
+
+  MARQUEE BEHAVIOUR:
+  - The prototype duplicates its review set once in the HTML so the CSS
+    animation can loop seamlessly (scroll -50%, snap back, looks infinite).
+    Reproduced the same way here: the block loop renders twice.
+  - Original already pauses on hover/focus (kept) — I also added a hard
+    prefers-reduced-motion override in CSS (freezes the track entirely
+    instead of just pausing on hover) since a moving wall of text that
+    never stops without direct interaction is exactly what that media
+    query exists to prevent.
+{%- endcomment -%}
+
+<section class="sec revband" id="reviews" data-scene="1" data-section-id="{{ section.id }}">
+  <div class="wrap">
+    <div class="revhead rv">
+      {%- if section.settings.kicker != blank -%}
+        <span class="kicker">{{ section.settings.kicker }}</span>
+      {%- endif -%}
+      {%- if section.settings.rating_text != blank -%}
+        <span class="agg"><span class="st" aria-hidden="true">★★★★★</span> <b>{{ section.settings.rating_value }}</b> {{ section.settings.rating_text }}</span>
+      {%- endif -%}
+      {%- if section.settings.loved_by_text != blank -%}
+        <span class="agg">{{ section.settings.loved_by_text }}</span>
+      {%- endif -%}
+    </div>
+  </div>
+
+  {%- assign review_blocks = section.blocks | where: 'type', 'review' -%}
+  {%- if review_blocks.size > 0 -%}
+    <div class="revrail rv" aria-label="Customer reviews">
+      <div class="revtrack">
+        {%- comment -%} Render the block set twice — required for the seamless infinite-scroll illusion; hidden from a second pass by assistive tech via aria-hidden on the duplicate. {%- endcomment -%}
+        {%- for i in (1..2) -%}
+          {%- for block in review_blocks -%}
+            {%- assign review = block.settings.review_ref -%}
+            {%- if review != blank -%}
+              <article class="glass-2 rcard" {% if i == 2 %}aria-hidden="true"{% endif %} {{ block.shopify_attributes }}>
+                <div class="st" aria-hidden="true">
+                  {%- assign stars = review.rating.value | default: 5 -%}
+                  {%- for s in (1..5) -%}{%- if s <= stars -%}★{%- else -%}☆{%- endif -%}{%- endfor -%}
+                </div>
+                <h5>{{ review.title.value }}</h5>
+                <p>{{ review.body.value }}</p>
+                <div class="who">
+                  {% render 'icon', name: 'check' %}
+                  <b>{{ review.author_name.value }}</b>
+                  {%- if review.product_ref.value != blank -%}
+                    <span>· {{ review.product_ref.value.title }}</span>
+                  {%- endif -%}
+                </div>
+              </article>
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- elsif request.design_mode -%}
+    <div class="wrap"><p class="body-s" style="text-align:center">Add "Review" blocks and pick a review metaobject entry to preview this rail.</p></div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Reviews",
+  "tag": "section",
+  "settings": [
+    { "type": "text", "id": "kicker", "label": "Kicker", "default": "That's what they said" },
+    { "type": "text", "id": "rating_value", "label": "Aggregate rating", "default": "4.8" },
+    { "type": "text", "id": "rating_text", "label": "Rating context text", "default": "from 8,000+ reviews" },
+    { "type": "text", "id": "loved_by_text", "label": "Second stat line", "default": "Loved by 12 lakh+ homes" }
+  ],
+  "blocks": [
+    {
+      "type": "review",
+      "name": "Review",
+      "settings": [
+        { "type": "metaobject", "id": "review_ref", "label": "Review", "metaobject_type": "customer_review" }
+      ]
+    }
+  ],
+  "max_blocks": 12,
+  "presets": [
+    { "name": "Reviews" }
+  ]
+}
+{% endschema %}

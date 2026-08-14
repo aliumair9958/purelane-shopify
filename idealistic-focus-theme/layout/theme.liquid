@@ -321,9 +321,11 @@
     </script>
     {{ 'purelane-base.css' | asset_url | stylesheet_tag }}
   <script src="{{ 'purelane-reveal.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'purelane-scenes.js' | asset_url }}" defer="defer"></script>
   </head>
 
   <body class="gradient{% if settings.animations_hover_elements != 'none' %} animate--hover-{{ settings.animations_hover_elements }}{% endif %}">
+    {% render 'scenes-background' %}
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ 'accessibility.skip_to_text' | t }}
     </a>
