@@ -42,7 +42,7 @@ See `docs/METAOBJECT_DEFINITIONS.md` for exact field schemas.
 ## Local development
 
 ```bash
-shopify theme dev --store=<your-store>.myshopify.com
+shopify theme dev --store=purelane-dev-store-tzcu2ik5.myshopify.com
 ```
 
 ---
